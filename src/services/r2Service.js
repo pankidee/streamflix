@@ -15,7 +15,7 @@ async function uploadDirectoryToR2(localDir, remotePrefix) {
   const files = fs.readdirSync(localDir);
   const uploadedUrls = {};
 
-  for (const file of files) {
+  const uploadPromises = files.map(async (file) => {
     const filePath = path.join(localDir, file);
     const fileContent = fs.readFileSync(filePath);
     const key = `${remotePrefix}/${file}`;
@@ -34,18 +34,21 @@ async function uploadDirectoryToR2(localDir, remotePrefix) {
     }));
 
     uploadedUrls[file] = `${process.env.R2_PUBLIC_URL}/${key}`;
-  }
+  });
+
+  await Promise.all(uploadPromises);
 
   return uploadedUrls;
 }
 
 async function deleteDirectoryFromR2(remotePrefix, fileNames) {
-  for (const file of fileNames) {
-    await r2.send(new DeleteObjectCommand({
+  const deletePromises = fileNames.map((file) =>
+    r2.send(new DeleteObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME,
       Key: `${remotePrefix}/${file}`,
-    }));
-  }
+    }))
+  );
+  await Promise.all(deletePromises);
 }
 
 module.exports = { uploadDirectoryToR2, deleteDirectoryFromR2 };
