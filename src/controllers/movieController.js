@@ -1,17 +1,6 @@
 const { Op } = require('sequelize');
 const Movie = require('../models/Movie');
 
-exports.getAllMovies = async (req, res) => {
-  try {
-    const where = {};
-    if (req.query.vj) where.vj = req.query.vj;
-    const movies = await Movie.findAll({ where, order: [['createdAt', 'DESC']] });
-    res.json(movies);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
 exports.getFeaturedMovie = async (req, res) => {
   try {
     const where = {};
@@ -86,5 +75,35 @@ exports.deleteMovie = async (req, res) => {
     res.json({ message: 'Movie deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+exports.getVJList = async (req, res) => {
+  try {
+    const vjs = await Movie.findAll({
+      attributes: ['vj'],
+      group: ['vj'],
+      order: [['vj', 'ASC']],
+    });
+
+    res.json(vjs.map(v => v.vj));
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+exports.getMovieById = async (req, res) => {
+  try {
+    const movie = await Movie.findByPk(req.params.id);
+
+    if (!movie) {
+      return res.status(404).json({
+        message: 'Movie not found',
+      });
+    }
+
+    res.json(movie);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
