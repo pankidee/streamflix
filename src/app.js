@@ -7,6 +7,8 @@ const healthRoutes = require('./routes/healthRoutes');
 const authRoutes = require('./routes/authRoutes');
 const movieRoutes = require('./routes/movieRoutes');
 const userRoutes = require('./routes/userRoutes');
+const seriesRoutes = require('./routes/seriesRoutes');
+app.use('/api/series', seriesRoutes);
 
 const app = express();
 

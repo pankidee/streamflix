@@ -23,15 +23,25 @@ exports.getFeaturedMovie = async (req, res) => {
   }
 };
 
-exports.getVJList = async (req, res) => {
-  res.json(Movie.VJ_OPTIONS);
-};
-
-exports.getMovieById = async (req, res) => {
+exports.getAllMovies = async (req, res) => {
   try {
-    const movie = await Movie.findByPk(req.params.id);
-    if (!movie) return res.status(404).json({ message: 'Movie not found' });
-    res.json(movie);
+    const where = {};
+    if (req.query.vj) where.vj = req.query.vj;
+
+    if (req.query.page) {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const offset = (page - 1) * limit;
+
+      const { count, rows } = await Movie.findAndCountAll({
+        where, order: [['createdAt', 'DESC']], limit, offset,
+      });
+
+      return res.json({ movies: rows, totalPages: Math.ceil(count / limit), currentPage: page });
+    }
+
+    const movies = await Movie.findAll({ where, order: [['createdAt', 'DESC']] });
+    res.json(movies);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
