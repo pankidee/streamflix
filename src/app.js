@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+
 const errorHandler = require('./middleware/errorHandler');
 
 const healthRoutes = require('./routes/healthRoutes');
@@ -8,7 +9,6 @@ const authRoutes = require('./routes/authRoutes');
 const movieRoutes = require('./routes/movieRoutes');
 const userRoutes = require('./routes/userRoutes');
 const seriesRoutes = require('./routes/seriesRoutes');
-app.use('/api/series', seriesRoutes);
 
 const app = express();
 
@@ -24,12 +24,16 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/videos', express.static(path.join(__dirname, '..', 'uploads', 'processed')));
+app.use(
+  '/videos',
+  express.static(path.join(__dirname, '..', 'uploads', 'processed'))
+);
 
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/series', seriesRoutes);
 
 app.use(errorHandler);
 
