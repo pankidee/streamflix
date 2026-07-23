@@ -11,6 +11,9 @@ WatchHistory.belongsTo(Movie, { foreignKey: 'movieId' });
 const Series = require('./Series');
 const Episode = require('./Episode');
 
+const Notification = require('./Notification');
+module.exports.Notification = Notification;
+
 Series.hasMany(Episode, { foreignKey: 'seriesId', onDelete: 'CASCADE' });
 Episode.belongsTo(Series, { foreignKey: 'seriesId' });
 

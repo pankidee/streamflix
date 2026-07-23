@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { Movie } = require('../models');
+const { Movie, Notification } = require('../models');
 const { convertToHLS } = require('../services/transcodeService');
 const { uploadDirectoryToR2 } = require('../services/r2Service');
 
@@ -31,6 +31,13 @@ exports.uploadMovie = async (req, res) => {
 
     movie.videoPlaylistUrl = playlistUrl;
     await movie.save();
+
+    await Notification.create({
+      type: 'movie',
+      title: movie.title,
+      referenceId: movie.id,
+      posterUrl: movie.posterUrl,
+    });
 
     fs.rmSync(localOutputDir, { recursive: true, force: true });
     fs.unlinkSync(rawFilePath);

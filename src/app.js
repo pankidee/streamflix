@@ -17,6 +17,9 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
+const notificationRoutes = require('./routes/notificationRoutes');
+app.use('/api/notifications', notificationRoutes);
+
 app.use(cors({
   origin: allowedOrigins,
   credentials: true,

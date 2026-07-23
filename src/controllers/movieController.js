@@ -1,5 +1,6 @@
 const { Op } = require('sequelize');
 const Movie = require('../models/Movie');
+const { Notification } = require('../models');
 
 exports.getFeaturedMovie = async (req, res) => {
   try {
@@ -105,5 +106,33 @@ exports.getMovieById = async (req, res) => {
     res.status(500).json({
       message: err.message,
     });
+  }
+};
+exports.getRelatedMovies = async (req, res) => {
+  try {
+    const movie = await Movie.findByPk(req.params.id);
+    if (!movie) return res.status(404).json({ message: 'Movie not found' });
+
+    let related = await Movie.findAll({
+      where: { genre: movie.genre, id: { [Op.ne]: movie.id } },
+      limit: 2,
+      order: [['createdAt', 'DESC']],
+    });
+
+    if (related.length < 2) {
+      const more = await Movie.findAll({
+        where: {
+          vj: movie.vj,
+          id: { [Op.ne]: movie.id, [Op.notIn]: related.map((r) => r.id) },
+        },
+        limit: 2 - related.length,
+        order: [['createdAt', 'DESC']],
+      });
+      related = [...related, ...more];
+    }
+
+    res.json(related);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
